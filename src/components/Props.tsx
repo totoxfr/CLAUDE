@@ -503,3 +503,139 @@ const Bell: React.FC<{frame: number; at: number}> = ({frame, at}) => {
 		</svg>
 	);
 };
+
+// ---------------------------------------------------------------- Panneau « attention »
+export const WarningSign: React.FC<{frame: number}> = ({frame}) => {
+	const p = pop(frame, 0, {damping: 9, stiffness: 220});
+	const blink = Math.floor(frame / 4) % 2 === 0;
+	return (
+		<svg width={360} height={320} viewBox="0 0 120 106" style={{transform: `scale(${p}) rotate(${(1 - p) * -30 + Math.sin(frame * 0.5) * 3}deg)`, filter: `drop-shadow(0 0 ${blink ? 30 : 12}px ${COLORS.pink})`}}>
+			<path d="M60 4 L116 100 H4 Z" fill={COLORS.night} stroke={COLORS.pink} strokeWidth={7} strokeLinejoin="round" />
+			<rect x={54} y={34} width={12} height={38} rx={5} fill={blink ? COLORS.white : COLORS.pink} />
+			<circle cx={60} cy={84} r={7} fill={blink ? COLORS.white : COLORS.pink} />
+		</svg>
+	);
+};
+
+// ---------------------------------------------------------------- Pile de boîtes de jeu (copies vendues)
+export const CopiesStack: React.FC<{frame: number}> = ({frame}) => (
+	<div style={{position: 'relative', width: 760, height: 380}}>
+		{new Array(24).fill(0).map((_, i) => {
+			const col = i % 6;
+			const row = Math.floor(i / 6);
+			const at = i * 1.1;
+			const p = pop(frame, at, {damping: 11, stiffness: 200});
+			if (frame < at) return null;
+			const c = [COLORS.pink, COLORS.cyan, COLORS.violet][(col + row) % 3];
+			return (
+				<div
+					key={i}
+					style={{
+						position: 'absolute',
+						left: 20 + col * 122 + (row % 2) * 30,
+						bottom: row * 92,
+						width: 104,
+						height: 84,
+						borderRadius: 10,
+						border: `4px solid ${c}`,
+						background: `linear-gradient(160deg, ${c}55, ${COLORS.night})`,
+						boxShadow: `0 0 14px ${c}88`,
+						transform: `translateY(${(1 - p) * -500}px) rotate(${(1 - p) * 40}deg)`,
+					}}
+				/>
+			);
+		})}
+	</div>
+);
+
+// ---------------------------------------------------------------- Blocs qui se construisent
+export const BuildBlocks: React.FC<{frame: number}> = ({frame}) => (
+	<div style={{display: 'grid', gridTemplateColumns: 'repeat(5, 130px)', gap: 14}}>
+		{new Array(15).fill(0).map((_, i) => {
+			const at = (14 - i) * 1.6;
+			const p = pop(frame, at, {damping: 10, stiffness: 240});
+			const c = [COLORS.violet, COLORS.cyan, COLORS.pink][i % 3];
+			return (
+				<div
+					key={i}
+					style={{
+						width: 130,
+						height: 90,
+						borderRadius: 10,
+						border: `4px dashed ${c}`,
+						background: frame > at + 6 ? `${c}44` : 'transparent',
+						boxShadow: `0 0 12px ${c}66`,
+						transform: `translateY(${(1 - p) * -700}px) scale(${0.4 + 0.6 * p})`,
+						opacity: frame < at ? 0 : 1,
+					}}
+				/>
+			);
+		})}
+	</div>
+);
+
+// ---------------------------------------------------------------- Paiement (tu achètes le jeu)
+export const Checkout: React.FC<{frame: number}> = ({frame}) => {
+	const p = glide(frame, 0);
+	const ok = frame > 14;
+	const okP = pop(frame, 14, {damping: 9});
+	return (
+		<div
+			style={{
+				width: 720,
+				padding: '40px 50px',
+				boxSizing: 'border-box',
+				borderRadius: 36,
+				background: `linear-gradient(150deg, ${COLORS.nightSoft}, ${COLORS.night})`,
+				border: `5px solid ${ok ? COLORS.cyan : COLORS.white}55`,
+				boxShadow: glow(ok ? COLORS.cyan : COLORS.violet, 0.5),
+				transform: `perspective(1200px) rotateX(${(1 - p) * 60}deg) translateY(${(1 - p) * 200}px)`,
+				display: 'flex',
+				flexDirection: 'column',
+				gap: 24,
+			}}
+		>
+			<div style={{fontFamily: BEBAS, fontSize: 56, letterSpacing: 6, color: COLORS.dim}}>PANIER</div>
+			<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+				<div style={{width: 120, height: 150, borderRadius: 14, background: `linear-gradient(${COLORS.pink}, ${COLORS.violet})`, boxShadow: glow(COLORS.pink, 0.4)}} />
+				<div style={{fontFamily: ANTON, fontSize: 92, color: COLORS.white}}>1 JEU</div>
+			</div>
+			<div
+				style={{
+					alignSelf: 'center',
+					fontFamily: ANTON,
+					fontSize: 74,
+					padding: '10px 40px',
+					borderRadius: 20,
+					background: ok ? COLORS.cyan : COLORS.pink,
+					color: COLORS.night,
+					transform: `scale(${ok ? 0.8 + 0.2 * okP : 1})`,
+				}}
+			>
+				{ok ? 'PAYÉ ✓' : 'ACHETER'}
+			</div>
+		</div>
+	);
+};
+
+// ---------------------------------------------------------------- Badge « partie 2 »
+export const PartTwo: React.FC<{frame: number}> = ({frame}) => {
+	const p = pop(frame, 0, {damping: 9, stiffness: 200});
+	return (
+		<div
+			style={{
+				fontFamily: ANTON,
+				fontSize: 150,
+				color: COLORS.night,
+				background: COLORS.cyan,
+				padding: '6px 50px',
+				borderRadius: 24,
+				boxShadow: glow(COLORS.cyan),
+				transform: `scale(${p}) rotate(${-8 + Math.sin(frame * 0.3) * 3}deg)`,
+				whiteSpace: 'nowrap',
+			}}
+		>
+			PARTIE 2
+		</div>
+	);
+};

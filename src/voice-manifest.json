@@ -1,399 +1,654 @@
 {
 	"placeholder": false,
-	"provider": "chatterbox",
-	"voiceId": "chatterbox-multilingual",
+	"provider": "edge",
+	"voiceId": "fr-FR-RemyMultilingualNeural",
 	"scenes": [
 		{
 			"id": "s1",
 			"file": "voice/s1.mp3",
-			"duration": 6.635,
+			"duration": 3.892,
 			"words": [
 				{
 					"text": "GTA",
-					"start": 0,
-					"end": 0.88
+					"start": 0.03,
+					"end": 0.454
 				},
 				{
 					"text": "6",
-					"start": 0.88,
-					"end": 1.3
+					"start": 0.454,
+					"end": 0.956
 				},
 				{
 					"text": "sort",
-					"start": 1.72,
-					"end": 1.96
+					"start": 0.956,
+					"end": 1.006
 				},
 				{
 					"text": "dans",
-					"start": 1.96,
-					"end": 2.14
+					"start": 0.956,
+					"end": 1.102
 				},
 				{
 					"text": "deux",
-					"start": 2.14,
-					"end": 2.34
+					"start": 1.102,
+					"end": 1.213
 				},
 				{
-					"text": "jours…",
-					"start": 2.34,
-					"end": 2.6
+					"text": "jours.",
+					"start": 1.213,
+					"end": 1.682
 				},
 				{
-					"text": "et",
-					"start": 3.1,
-					"end": 3.38
+					"text": "Et",
+					"start": 1.882,
+					"end": 1.949
+				},
+				{
+					"text": "crois-moi,",
+					"start": 1.949,
+					"end": 2.418
 				},
 				{
 					"text": "il",
-					"start": 3.38,
-					"end": 3.48
+					"start": 2.538,
+					"end": 2.617
 				},
 				{
 					"text": "va",
-					"start": 3.48,
-					"end": 3.62
+					"start": 2.617,
+					"end": 2.706
 				},
 				{
 					"text": "créer",
-					"start": 3.62,
-					"end": 3.84
+					"start": 2.706,
+					"end": 2.974
 				},
 				{
 					"text": "des",
-					"start": 3.84,
-					"end": 4.02
+					"start": 2.974,
+					"end": 3.063
 				},
 				{
-					"text": "millionnaires.",
-					"start": 4.02,
-					"end": 4.5
+					"text": "millionnaires!",
+					"start": 3.063,
+					"end": 3.744
 				}
 			]
 		},
 		{
 			"id": "s2",
 			"file": "voice/s2.mp3",
-			"duration": 1.228,
+			"duration": 1.907,
 			"words": [
 				{
 					"text": "Mais",
-					"start": 0,
-					"end": 0.18
+					"start": 0.1,
+					"end": 0.223
+				},
+				{
+					"text": "attention:",
+					"start": 0.223,
+					"end": 0.836
 				},
 				{
 					"text": "pas",
-					"start": 0.18,
-					"end": 0.36
+					"start": 0.956,
+					"end": 1.067
 				},
 				{
 					"text": "ceux",
-					"start": 0.36,
-					"end": 0.52
+					"start": 1.067,
+					"end": 1.212
 				},
 				{
 					"text": "que",
-					"start": 0.52,
-					"end": 0.64
+					"start": 1.212,
+					"end": 1.302
 				},
 				{
 					"text": "tu",
-					"start": 0.64,
-					"end": 0.76
+					"start": 1.302,
+					"end": 1.402
 				},
 				{
 					"text": "crois.",
-					"start": 0.76,
-					"end": 0.96
+					"start": 1.402,
+					"end": 1.759
 				}
 			]
 		},
 		{
 			"id": "s3",
 			"file": "voice/s3.mp3",
-			"duration": 3.474,
+			"duration": 7.758,
 			"words": [
 				{
-					"text": "Premier",
-					"start": 0,
-					"end": 0.26
+					"text": "Gagnant",
+					"start": 0.1,
+					"end": 0.446
 				},
 				{
-					"text": "gagnant:",
-					"start": 0.26,
-					"end": 0.72
+					"text": "numéro",
+					"start": 0.446,
+					"end": 0.87
 				},
 				{
-					"text": "Take-Two.",
-					"start": 0.84,
-					"end": 1.68
+					"text": "un:",
+					"start": 0.87,
+					"end": 1.082
 				},
 				{
-					"text": "L'éditeur",
-					"start": 1.68,
-					"end": 2.1
+					"text": "Take-Two,",
+					"start": 1.202,
+					"end": 1.638
 				},
 				{
-					"text": "s'attend",
-					"start": 2.1,
-					"end": 2.52
+					"text": "l'éditeur.",
+					"start": 1.758,
+					"end": 2.427
 				},
 				{
-					"text": "à",
-					"start": 2.52,
-					"end": 2.64
+					"text": "GTA",
+					"start": 2.627,
+					"end": 3.029
+				},
+				{
+					"text": "5,",
+					"start": 3.029,
+					"end": 3.464
+				},
+				{
+					"text": "c'est",
+					"start": 3.584,
+					"end": 3.706
+				},
+				{
+					"text": "plus",
+					"start": 3.706,
+					"end": 3.885
+				},
+				{
+					"text": "de",
+					"start": 3.885,
+					"end": 3.997
+				},
+				{
+					"text": "200",
+					"start": 3.997,
+					"end": 4.532
+				},
+				{
+					"text": "millions",
+					"start": 4.532,
+					"end": 4.582
+				},
+				{
+					"text": "de",
+					"start": 4.532,
+					"end": 4.621
+				},
+				{
+					"text": "copies",
+					"start": 4.622,
+					"end": 4.856
+				},
+				{
+					"text": "vendues.",
+					"start": 4.856,
+					"end": 5.291
+				},
+				{
+					"text": "Alors",
+					"start": 5.491,
+					"end": 5.737
+				},
+				{
+					"text": "pour",
+					"start": 5.737,
+					"end": 5.871
+				},
+				{
+					"text": "le",
+					"start": 5.871,
+					"end": 5.971
+				},
+				{
+					"text": "6,",
+					"start": 5.971,
+					"end": 6.395
+				},
+				{
+					"text": "ils",
+					"start": 6.515,
+					"end": 6.605
+				},
+				{
+					"text": "visent",
+					"start": 6.605,
+					"end": 6.783
 				},
 				{
 					"text": "une",
-					"start": 2.64,
-					"end": 2.7
+					"start": 6.783,
+					"end": 6.895
 				},
 				{
 					"text": "année",
-					"start": 2.7,
-					"end": 2.86
+					"start": 6.895,
+					"end": 7.04
 				},
 				{
 					"text": "record.",
-					"start": 2.86,
-					"end": 3.08
+					"start": 7.04,
+					"end": 7.62
 				}
 			]
 		},
 		{
 			"id": "s4",
 			"file": "voice/s4.mp3",
-			"duration": 6.217,
+			"duration": 6.949,
 			"words": [
 				{
-					"text": "Deuxième:",
-					"start": 0,
-					"end": 0.52
+					"text": "Numéro",
+					"start": 0.1,
+					"end": 0.524
+				},
+				{
+					"text": "deux:",
+					"start": 0.524,
+					"end": 0.781
 				},
 				{
 					"text": "les",
-					"start": 0.78,
-					"end": 0.86
+					"start": 0.901,
+					"end": 0.991
 				},
 				{
 					"text": "streamers.",
-					"start": 0.86,
-					"end": 1.36
+					"start": 0.991,
+					"end": 1.66
 				},
 				{
-					"text": "Ceux",
-					"start": 1.76,
-					"end": 2.06
-				},
-				{
-					"text": "qui",
-					"start": 2.06,
-					"end": 2.24
-				},
-				{
-					"text": "seront",
-					"start": 2.24,
-					"end": 2.42
-				},
-				{
-					"text": "prêts",
-					"start": 2.42,
-					"end": 2.74
-				},
-				{
-					"text": "le",
-					"start": 2.74,
-					"end": 2.84
+					"text": "Le",
+					"start": 1.86,
+					"end": 2.005
 				},
 				{
 					"text": "jour",
-					"start": 2.84,
-					"end": 3.06
+					"start": 2.005,
+					"end": 2.184
 				},
 				{
-					"text": "J",
-					"start": 3.4,
-					"end": 3.5
+					"text": "J,",
+					"start": 2.184,
+					"end": 2.474
+				},
+				{
+					"text": "des",
+					"start": 2.594,
+					"end": 2.695
+				},
+				{
+					"text": "millions",
+					"start": 2.695,
+					"end": 2.974
+				},
+				{
+					"text": "de",
+					"start": 2.974,
+					"end": 3.097
+				},
+				{
+					"text": "gens",
+					"start": 3.097,
+					"end": 3.365
 				},
 				{
 					"text": "vont",
-					"start": 3.5,
-					"end": 3.64
+					"start": 3.432,
+					"end": 3.554
 				},
 				{
-					"text": "exploser.",
-					"start": 3.76,
-					"end": 4.2
+					"text": "regarder",
+					"start": 3.554,
+					"end": 4.012
+				},
+				{
+					"text": "avant",
+					"start": 4.012,
+					"end": 4.213
+				},
+				{
+					"text": "même",
+					"start": 4.213,
+					"end": 4.38
+				},
+				{
+					"text": "d'acheter.",
+					"start": 4.38,
+					"end": 4.882
+				},
+				{
+					"text": "Ceux",
+					"start": 5.082,
+					"end": 5.339
+				},
+				{
+					"text": "qui",
+					"start": 5.339,
+					"end": 5.473
+				},
+				{
+					"text": "seront",
+					"start": 5.473,
+					"end": 5.763
+				},
+				{
+					"text": "prêts",
+					"start": 5.763,
+					"end": 5.975
+				},
+				{
+					"text": "vont",
+					"start": 5.975,
+					"end": 6.109
+				},
+				{
+					"text": "exploser!",
+					"start": 6.109,
+					"end": 6.801
 				}
 			]
 		},
 		{
 			"id": "s5",
 			"file": "voice/s5.mp3",
-			"duration": 6.896,
+			"duration": 7.576,
 			"words": [
 				{
-					"text": "Troisième:",
-					"start": 0,
-					"end": 0.52
+					"text": "Numéro",
+					"start": 0.1,
+					"end": 0.457
+				},
+				{
+					"text": "trois:",
+					"start": 0.457,
+					"end": 0.792
 				},
 				{
 					"text": "les",
-					"start": 0.82,
-					"end": 0.92
+					"start": 0.912,
+					"end": 0.99
 				},
 				{
 					"text": "créateurs",
-					"start": 0.92,
-					"end": 1.32
+					"start": 0.99,
+					"end": 1.503
 				},
 				{
 					"text": "de",
-					"start": 1.32,
-					"end": 1.44
+					"start": 1.503,
+					"end": 1.604
 				},
 				{
 					"text": "serveurs",
-					"start": 1.44,
-					"end": 1.86
+					"start": 1.604,
+					"end": 1.972
 				},
 				{
 					"text": "RP.",
-					"start": 1.86,
-					"end": 2.18
+					"start": 1.972,
+					"end": 2.43
 				},
 				{
 					"text": "Sur",
-					"start": 2.64,
-					"end": 3.02
+					"start": 2.63,
+					"end": 2.876
 				},
 				{
 					"text": "GTA",
-					"start": 3.02,
-					"end": 3.65
+					"start": 2.876,
+					"end": 3.233
 				},
 				{
 					"text": "5,",
-					"start": 3.65,
-					"end": 3.86
+					"start": 3.233,
+					"end": 3.668
 				},
 				{
 					"text": "certains",
-					"start": 4.24,
-					"end": 4.56
+					"start": 3.788,
+					"end": 4.134
 				},
 				{
 					"text": "en",
-					"start": 4.56,
-					"end": 4.78
+					"start": 4.134,
+					"end": 4.212
 				},
 				{
 					"text": "vivent",
-					"start": 4.78,
-					"end": 5.02
+					"start": 4.212,
+					"end": 4.48
 				},
 				{
 					"text": "depuis",
-					"start": 5.02,
-					"end": 5.18
+					"start": 4.48,
+					"end": 4.703
 				},
 				{
 					"text": "des",
-					"start": 5.18,
-					"end": 5.42
+					"start": 4.703,
+					"end": 4.792
 				},
 				{
 					"text": "années.",
-					"start": 5.42,
-					"end": 5.62
+					"start": 4.792,
+					"end": 5.194
+				},
+				{
+					"text": "Et",
+					"start": 5.394,
+					"end": 5.483
+				},
+				{
+					"text": "sur",
+					"start": 5.483,
+					"end": 5.651
+				},
+				{
+					"text": "le",
+					"start": 5.651,
+					"end": 5.762
+				},
+				{
+					"text": "6,",
+					"start": 5.762,
+					"end": 6.231
+				},
+				{
+					"text": "tout",
+					"start": 6.351,
+					"end": 6.452
+				},
+				{
+					"text": "est",
+					"start": 6.452,
+					"end": 6.552
+				},
+				{
+					"text": "à",
+					"start": 6.552,
+					"end": 6.664
+				},
+				{
+					"text": "reconstruire.",
+					"start": 6.664,
+					"end": 7.434
 				}
 			]
 		},
 		{
 			"id": "s6",
 			"file": "voice/s6.mp3",
-			"duration": 6.374,
+			"duration": 4.807,
 			"words": [
 				{
 					"text": "Et",
-					"start": 0,
-					"end": 0.18
+					"start": 0.1,
+					"end": 0.189
 				},
 				{
-					"text": "toi?",
-					"start": 0.18,
-					"end": 0.34
+					"text": "toi",
+					"start": 0.189,
+					"end": 0.39
 				},
 				{
-					"text": "Le",
-					"start": 1.04,
-					"end": 2.68
+					"text": "dans",
+					"start": 0.39,
+					"end": 0.524
+				},
+				{
+					"text": "tout",
+					"start": 0.524,
+					"end": 0.647
+				},
+				{
+					"text": "ça?",
+					"start": 0.647,
+					"end": 0.97
+				},
+				{
+					"text": "Tu",
+					"start": 1.17,
+					"end": 1.26
+				},
+				{
+					"text": "vas",
+					"start": 1.26,
+					"end": 1.36
+				},
+				{
+					"text": "acheter",
+					"start": 1.36,
+					"end": 1.583
+				},
+				{
+					"text": "le",
+					"start": 1.583,
+					"end": 1.706
+				},
+				{
+					"text": "jeu,",
+					"start": 1.706,
+					"end": 1.985
+				},
+				{
+					"text": "et",
+					"start": 2.105,
+					"end": 2.138
+				},
+				{
+					"text": "le",
+					"start": 2.138,
+					"end": 2.239
 				},
 				{
 					"text": "seul",
-					"start": 2.68,
-					"end": 2.92
+					"start": 2.239,
+					"end": 2.44
 				},
 				{
 					"text": "million",
-					"start": 2.92,
-					"end": 3.2
+					"start": 2.44,
+					"end": 2.73
 				},
 				{
-					"text": "garanti…",
-					"start": 3.2,
-					"end": 4.22
+					"text": "que",
+					"start": 2.73,
+					"end": 2.819
+				},
+				{
+					"text": "tu",
+					"start": 2.819,
+					"end": 2.92
+				},
+				{
+					"text": "vas",
+					"start": 2.92,
+					"end": 3.009
+				},
+				{
+					"text": "toucher,",
+					"start": 3.009,
+					"end": 3.422
 				},
 				{
 					"text": "c'est",
-					"start": 4.22,
-					"end": 5.24
+					"start": 3.542,
+					"end": 3.643
 				},
 				{
 					"text": "celui",
-					"start": 5.24,
-					"end": 5.44
+					"start": 3.643,
+					"end": 3.899
 				},
 				{
 					"text": "de",
-					"start": 5.44,
-					"end": 5.64
+					"start": 3.899,
+					"end": 4.011
 				},
 				{
 					"text": "Vice",
-					"start": 5.64,
-					"end": 5.88
+					"start": 4.011,
+					"end": 4.212
 				},
 				{
-					"text": "City.",
-					"start": 5.88,
-					"end": 6.18
+					"text": "City!",
+					"start": 4.212,
+					"end": 4.669
 				}
 			]
 		},
 		{
 			"id": "s7",
 			"file": "voice/s7.mp3",
-			"duration": 2.638,
+			"duration": 2.508,
 			"words": [
 				{
-					"text": "Abonne-toi",
-					"start": 0,
-					"end": 0.54
-				},
-				{
-					"text": "pour",
-					"start": 0.54,
-					"end": 0.72
+					"text": "Abonne-toi,",
+					"start": 0.1,
+					"end": 0.647
 				},
 				{
 					"text": "la",
-					"start": 0.72,
-					"end": 0.86
+					"start": 0.767,
+					"end": 0.845
 				},
 				{
-					"text": "suite.",
-					"start": 0.86,
-					"end": 1.04
+					"text": "partie",
+					"start": 0.845,
+					"end": 1.135
+				},
+				{
+					"text": "deux",
+					"start": 1.135,
+					"end": 1.302
+				},
+				{
+					"text": "arrive",
+					"start": 1.302,
+					"end": 1.57
+				},
+				{
+					"text": "très",
+					"start": 1.57,
+					"end": 1.738
+				},
+				{
+					"text": "vite!",
+					"start": 1.738,
+					"end": 2.162
 				}
 			]
 		}

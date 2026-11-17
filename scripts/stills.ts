@@ -34,7 +34,7 @@ else {
 		const kw = voices[i].words.map((w: {text: string; start: number}) => [w.text, starts[i] + lead + Math.round(w.start * fps)] as const);
 		// mot-clé « fort » de chaque scène + un plan de milieu
 		kw.forEach(([text, f]: readonly [string, number]) => {
-			if (/millionnaires|take-two|streamers|^rp|exploser|record|vice|abonne|crois|toi|garanti/i.test(text)) named.push([`s${i + 1}-${text.replace(/[^\p{L}\p{N}]/gu, '')}`, f + 8]);
+			if (/millionnaires|attention|take-two|^200|streamers|^jour|exploser|^rp|reconstruire|record|vice|abonne|toi|acheter|seul|crois-moi/i.test(text)) named.push([`s${i + 1}-${text.replace(/[^\p{L}\p{N}]/gu, '')}`, f + 8]);
 		});
 		if (i > 0) named.push([`trans-${i}to${i + 1}-mid`, starts[i] + Math.floor(TRANSITION_FRAMES / 2)]);
 	});

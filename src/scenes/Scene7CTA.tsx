@@ -1,19 +1,18 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Backdrop} from '../components/Backdrop';
-import {SubscribeButton} from '../components/Props';
-import {Kicker, PopWord, Stage} from '../components/Text';
+import {PartTwo, SubscribeButton} from '../components/Props';
+import {PopWord, Stage} from '../components/Text';
 import {COLORS} from '../constants';
 import {wordFrame} from '../timeline';
 import type {PlanFn} from './types';
 
-// CTA : « Abonne-toi pour la suite. »
+// CTA : « Abonne-toi, la partie deux arrive très vite ! »
 export const plan7: PlanFn = (t) => {
-	const A = wordFrame(t, 'abonne-toi', 0.05);
-	const B = wordFrame(t, 'pour', 0.55);
-	const click = B + 14;
+	const B = wordFrame(t, 'la', 0.3);
+	const click = B + 10;
 	return {
-		impacts: [A, click],
+		impacts: [0, click],
 		chachings: [],
 		shots: [
 			{
@@ -21,8 +20,9 @@ export const plan7: PlanFn = (t) => {
 				render: (f) => (
 					<AbsoluteFill>
 						<Backdrop sun grid palms tint={COLORS.pink} />
-						<Stage>
-							<PopWord text="ABONNE-TOI" frame={f} at={A} size={200} color={COLORS.pink} />
+						<Stage gap={70}>
+							<PopWord text="ABONNE-TOI" frame={f} size={200} color={COLORS.pink} />
+							<SubscribeButton frame={f} clickAt={B} />
 						</Stage>
 					</AbsoluteFill>
 				),
@@ -32,9 +32,9 @@ export const plan7: PlanFn = (t) => {
 				render: (f) => (
 					<AbsoluteFill>
 						<Backdrop sun grid palms tint={COLORS.violet} />
-						<Stage gap={70}>
-							<SubscribeButton frame={f} clickAt={click - B} />
-							<Kicker text="POUR LA SUITE →" frame={f} at={4} size={110} color={COLORS.cyan} />
+						<Stage gap={60}>
+							<PartTwo frame={f} />
+							<PopWord text="TRÈS VITE" frame={f} at={10} size={170} color={COLORS.white} tilt={-4} />
 						</Stage>
 					</AbsoluteFill>
 				),

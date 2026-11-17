@@ -16,5 +16,5 @@ export const PLANS: PlanFn[] = [plan1, plan2, plan3, plan4, plan5, plan6, plan7]
 /** Visuel d'une scène (plans + secousses), sans audio ni sous-titres. */
 export const SceneBody: React.FC<{t: SceneTiming}> = ({t}) => {
 	const plan = PLANS[t.index](t);
-	return <Shots shots={plan.shots} total={t.duration + TRANSITION_FRAMES} impacts={plan.impacts} />;
+	return <Shots shots={plan.shots} total={t.duration + TRANSITION_FRAMES} impacts={plan.impacts} beats={t.words.map((w) => w.start)} />;
 };

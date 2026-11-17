@@ -29,10 +29,11 @@ export const SPRING = {damping: 12, mass: 0.7, stiffness: 160} as const;
 // Durée visée. La durée réelle = voix + respirations (leadIn/tail) ;
 // le temps restant pour atteindre la cible est réparti sur les « tail »
 // selon tailWeight. La voix pilote toujours le montage.
-export const TARGET_SECONDS = 45;
-export const TRANSITION_FRAMES = 8; // chevauchement visuel entre scènes
-export const MAX_SHOT_FRAMES = 70; // ~2,3 s : au-delà, recadrage automatique
-export const MIN_SHOT_FRAMES = 14;
+// 0 = durée 100 % pilotée par la voix (pas de temps mort ajouté).
+export const TARGET_SECONDS = 0;
+export const TRANSITION_FRAMES = 6; // chevauchement visuel entre scènes
+export const MAX_SHOT_FRAMES = 45; // 1,5 s : au-delà, recadrage automatique
+export const MIN_SHOT_FRAMES = 10;
 
 export type TransitionKind =
 	| 'glitch'
@@ -62,63 +63,63 @@ export const SCENES: SceneDef[] = [
 	{
 		id: 's1',
 		label: 'Hook',
-		tts: 'GTA 6 sort dans deux jours… <break time="0.4s" /> et il va créer des millionnaires.',
-		leadIn: 0.1,
-		tail: 0.7,
+		tts: 'GTA 6 sort dans deux jours. Et crois-moi, il va créer des millionnaires !',
+		leadIn: 0,
+		tail: 0,
 		tailWeight: 1,
 		transitionOut: 'glitch',
 	},
 	{
 		id: 's2',
 		label: 'Twist',
-		tts: 'Mais pas ceux que tu crois.',
-		leadIn: 0.15,
-		tail: 1.0,
-		tailWeight: 1.2,
+		tts: 'Mais attention : pas ceux que tu crois.',
+		leadIn: 0,
+		tail: 0,
+		tailWeight: 1,
 		transitionOut: 'whipX',
 	},
 	{
 		id: 's3',
 		label: 'Take-Two',
-		tts: "Premier gagnant : Take-Two. L'éditeur s'attend à une année record.",
-		leadIn: 0.15,
-		tail: 1.0,
-		tailWeight: 1.6,
+		tts: "Gagnant numéro un : Take-Two, l'éditeur. GTA 5, c'est plus de 200 millions de copies vendues. Alors pour le 6, ils visent une année record.",
+		leadIn: 0,
+		tail: 0,
+		tailWeight: 1,
 		transitionOut: 'slideMask',
 	},
 	{
 		id: 's4',
 		label: 'Streamers',
-		tts: 'Deuxième : les streamers. Ceux qui seront prêts le jour J vont exploser.',
-		leadIn: 0.15,
-		tail: 1.0,
-		tailWeight: 1.6,
+		tts: "Numéro deux : les streamers. Le jour J, des millions de gens vont regarder avant même d'acheter. Ceux qui seront prêts vont exploser !",
+		leadIn: 0,
+		tail: 0,
+		tailWeight: 1,
 		transitionOut: 'zoomPunch',
 	},
 	{
 		id: 's5',
 		label: 'Serveurs RP',
-		tts: 'Troisième : les créateurs de serveurs RP. Sur GTA 5, certains en vivent depuis des années.',
-		leadIn: 0.15,
-		tail: 1.0,
-		tailWeight: 1.6,
+		tts: 'Numéro trois : les créateurs de serveurs RP. Sur GTA 5, certains en vivent depuis des années. Et sur le 6, tout est à reconstruire.',
+		leadIn: 0,
+		tail: 0,
+		tailWeight: 1,
 		transitionOut: 'whipY',
 	},
 	{
 		id: 's6',
 		label: 'Chute',
-		tts: 'Et toi ? <break time="0.8s" /> Le seul million garanti… <break time="0.5s" /> c\'est celui de Vice City.',
-		leadIn: 0.15,
-		tail: 1.0,
-		tailWeight: 1.3,
+		tts: "Et toi dans tout ça ? Tu vas acheter le jeu, et le seul million que tu vas toucher, c'est celui de Vice City !",
+		leadIn: 0,
+		tail: 0,
+		tailWeight: 1,
 		transitionOut: 'glitchLight',
 	},
 	{
 		id: 's7',
 		label: 'CTA',
-		tts: 'Abonne-toi pour la suite.',
-		leadIn: 0.15,
-		tail: 1.2,
+		tts: 'Abonne-toi, la partie deux arrive très vite !',
+		leadIn: 0,
+		tail: 1.0,
 		tailWeight: 1,
 		transitionOut: 'none',
 	},
@@ -129,7 +130,7 @@ export const SCENES: SceneDef[] = [
 // Microsoft Edge gratuite (edge-tts). Forçable via TTS_PROVIDER=elevenlabs|edge|silent.
 export const EDGE_VOICE = {
 	voice: 'fr-FR-RemyMultilingualNeural', // alternative : 'fr-FR-HenriNeural'
-	rate: '+8%',
+	rate: '+12%',
 	pitch: '+0Hz',
 } as const;
 

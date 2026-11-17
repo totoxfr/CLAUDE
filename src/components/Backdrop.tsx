@@ -22,8 +22,9 @@ export const Backdrop: React.FC<Props> = ({
 	horizon = 1180,
 }) => {
 	const f = useCurrentFrame();
+	const roll = Math.sin(f * 0.035) * 1.6;
 	return (
-		<AbsoluteFill style={{background: COLORS.night, overflow: 'hidden'}}>
+		<AbsoluteFill style={{background: COLORS.night, overflow: 'hidden', transform: `rotate(${roll}deg) scale(1.08)`}}>
 			<AbsoluteFill
 				style={{
 					background: `radial-gradient(ellipse 90% 55% at 50% ${horizon - 120}px, ${tint}55 0%, ${COLORS.nightSoft} 45%, ${COLORS.night} 80%)`,
@@ -38,6 +39,7 @@ export const Backdrop: React.FC<Props> = ({
 				</>
 			) : null}
 			{particles ? <Particles frame={f} /> : null}
+			<Sweep frame={f} />
 		</AbsoluteFill>
 	);
 };
@@ -68,7 +70,7 @@ const Grid: React.FC<{y: number; frame: number}> = ({y, frame}) => {
 	const W = VIDEO.width;
 	const h = VIDEO.height - y;
 	const N = 14;
-	const phase = (frame * 0.05) % 1;
+	const phase = (frame * 0.12) % 1;
 	const rows = new Array(N).fill(0).map((_, k) => {
 		const t = (k + phase) / N;
 		return {yy: h * t * t, o: Math.min(1, t * 2.2)};
@@ -122,3 +124,23 @@ const Particles: React.FC<{frame: number}> = ({frame}) => (
 		})}
 	</>
 );
+
+/** Faisceau lumineux diagonal qui balaie l'écran en boucle. */
+const Sweep: React.FC<{frame: number}> = ({frame}) => {
+	const t = (frame % 50) / 50;
+	const x = -600 + t * (VIDEO.width + 1200);
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				left: x,
+				top: -200,
+				width: 220,
+				height: VIDEO.height + 400,
+				transform: 'rotate(18deg)',
+				background: `linear-gradient(90deg, transparent, ${COLORS.white}14, ${COLORS.cyan}22, transparent)`,
+				mixBlendMode: 'screen',
+			}}
+		/>
+	);
+};

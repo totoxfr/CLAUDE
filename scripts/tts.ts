@@ -220,6 +220,106 @@ const synthEdge = (i: number) => {
 	return {file, words};
 };
 
+// --- Edge TTS en une seule prise continue -------------------------------------
+// Une seule prise pour tout le script = intonation fluide (pas de « reset » robotique
+// à chaque phrase). Les pauses sont ensuite compressées, puis la prise est découpée
+// en une piste par scène au milieu des silences entre scènes.
+const GAP = {sentence: 0.2, comma: 0.12, word: 0.1}; // pause max conservée (s)
+
+const synthEdgeContinuous = () => {
+	fs.mkdirSync(tmpDir, {recursive: true});
+	const strip = (t: string) => t.replace(/<[^>]+>/g, ' ');
+	// mots d'affichage (ponctuation isolée rattachée) + scène d'appartenance
+	const tokens: {text: string; scene: number}[] = [];
+	SCENES.forEach((s, si) =>
+		strip(s.tts)
+			.split(/\s+/)
+			.filter(Boolean)
+			.forEach((tok) => {
+				if (/^[\p{P}]+$/u.test(tok) && tokens.length) tokens[tokens.length - 1].text += tok;
+				else tokens.push({text: tok, scene: si});
+			}),
+	);
+	const fullText = SCENES.map((s) => strip(s.tts).trim()).join(' ');
+	const raw = path.join(tmpDir, 'full.mp3');
+	const out = execFileSync('python3', [
+		path.join(root, 'scripts', 'edge_tts_seg.py'), EDGE_VOICE.voice, EDGE_VOICE.rate, EDGE_VOICE.pitch, raw, fullText,
+	]).toString();
+	const bounds = JSON.parse(out) as Word[];
+
+	// alignement glouton WordBoundary -> mots du script
+	const times: ({start: number; end: number} | null)[] = tokens.map(() => null);
+	let k = 0;
+	for (const b of bounds) {
+		const nb = cleanTok(b.text);
+		if (!nb) continue;
+		let hit = -1;
+		for (let j = k; j < Math.min(tokens.length, k + 3); j++) if (cleanTok(tokens[j].text).startsWith(nb)) { hit = j; break; }
+		if (hit >= 0) {
+			times[hit] = {start: b.start, end: b.end};
+			k = hit + 1;
+		} else if (k > 0 && times[k - 1] && cleanTok(tokens[k - 1].text).includes(nb)) {
+			times[k - 1]!.end = b.end; // suite d'un mot composé (« Take » + « Two »)
+		}
+	}
+	// trous éventuels : interpolation
+	times.forEach((t, i) => {
+		if (t) return;
+		const p = times.slice(0, i).reverse().find(Boolean);
+		const n = times.slice(i + 1).find(Boolean);
+		const s0 = p ? p.end : 0;
+		const e0 = n ? n.start : s0 + 0.3;
+		times[i] = {start: s0, end: Math.max(s0 + 0.05, e0)};
+	});
+	const T = times as {start: number; end: number}[];
+
+	// intervalles conservés (compression des pauses)
+	const keep: [number, number][] = [];
+	let cur = Math.max(0, T[0].start - 0.03);
+	for (let i = 0; i < T.length - 1; i++) {
+		const gap = T[i + 1].start - T[i].end;
+		const t = tokens[i].text;
+		const max = /[.!?]$/.test(t) ? GAP.sentence : /[,:;]$/.test(t) ? GAP.comma : GAP.word;
+		if (gap > max) {
+			keep.push([cur, T[i].end + max / 2]);
+			cur = T[i + 1].start - max / 2;
+		}
+	}
+	keep.push([cur, T[T.length - 1].end + 0.35]);
+	const mapT = (x: number) => {
+		let acc = 0;
+		for (const [a, b] of keep) {
+			if (x <= b) return acc + Math.max(0, x - a);
+			acc += b - a;
+		}
+		return acc;
+	};
+	const total = keep.reduce((a, [x, y]) => a + (y - x), 0);
+	const compact = path.join(tmpDir, 'compact.wav');
+	const chain =
+		keep.map(([a, b], i) => `[0:a]atrim=${a.toFixed(3)}:${b.toFixed(3)},asetpts=PTS-STARTPTS[k${i}];`).join('') +
+		keep.map((_, i) => `[k${i}]`).join('') +
+		`concat=n=${keep.length}:v=0:a=1,` +
+		// présence + compression légère + loudness réseaux sociaux
+		'highpass=f=70,equalizer=f=3200:t=q:w=1.2:g=2.5,acompressor=threshold=-20dB:ratio=3:attack=4:release=80:makeup=2,loudnorm=I=-15:TP=-1.5:LRA=9,aresample=44100[out]';
+	execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', raw, '-filter_complex', chain, '-map', '[out]', '-ac', '1', compact]);
+
+	// découpe par scène au milieu du silence entre scènes
+	const W = tokens.map((t, i) => ({...t, start: mapT(T[i].start), end: mapT(T[i].end)}));
+	const res = new Map<string, {file: string; words: Word[]}>();
+	SCENES.forEach((s, si) => {
+		const ws = W.filter((w) => w.scene === si);
+		const prevLast = W.filter((w) => w.scene === si - 1).pop();
+		const nextFirst = W.find((w) => w.scene === si + 1);
+		const a = prevLast ? (prevLast.end + ws[0].start) / 2 : 0;
+		const b = nextFirst ? (ws[ws.length - 1].end + nextFirst.start) / 2 : total;
+		const file = path.join(voiceDir, `${s.id}.mp3`);
+		execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', compact, '-ss', a.toFixed(3), '-to', b.toFixed(3), '-c:a', 'libmp3lame', '-b:a', '160k', file]);
+		res.set(s.id, {file, words: ws.map((w) => ({text: w.text, start: +(w.start - a).toFixed(3), end: +(w.end - a).toFixed(3)}))});
+	});
+	return res;
+};
+
 // --- Chatterbox (local, open source) ----------------------------------------
 const venvPy = path.join(root, '.venv-tts', 'bin', 'python');
 const hasChatterbox = fs.existsSync(venvPy);
@@ -249,7 +349,7 @@ const prev: Manifest | null = fs.existsSync(manifestPath)
 	? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 	: null;
 
-const provider = (process.env.TTS_PROVIDER?.trim() || (apiKey ? 'elevenlabs' : hasChatterbox ? 'chatterbox' : 'edge')) as
+const provider = (process.env.TTS_PROVIDER?.trim() || (apiKey ? 'elevenlabs' : 'edge')) as
 	| 'elevenlabs'
 	| 'chatterbox'
 	| 'edge'
@@ -261,6 +361,7 @@ const voiceId =
 	provider === 'elevenlabs' ? await pickVoice() : provider === 'edge' ? EDGE_VOICE.voice : provider === 'chatterbox' ? 'chatterbox-multilingual' : null;
 const todo = SCENES.filter((s) => !(only && only !== s.id && prev?.provider === provider && prev.scenes.some((x) => x.id === s.id))).map((s) => s.id);
 const cb = provider === 'chatterbox' ? synthChatterbox(todo) : null;
+const edgeFull = provider === 'edge' ? synthEdgeContinuous() : null;
 
 const scenes: SceneVoice[] = [];
 for (let i = 0; i < SCENES.length; i++) {
@@ -282,6 +383,8 @@ for (let i = 0; i < SCENES.length; i++) {
 		file = r.file;
 		words = r.words;
 		if (r.score < CHATTERBOX.minScore) console.warn(`⚠ ${s.id} : fidélité ${r.score} < ${CHATTERBOX.minScore}, à réécouter (npm run tts -- --only ${s.id})`);
+	} else if (edgeFull) {
+		({file, words} = edgeFull.get(s.id)!);
 	} else if (provider === 'edge') {
 		({file, words} = synthEdge(i));
 	} else {

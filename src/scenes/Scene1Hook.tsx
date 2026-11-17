@@ -1,23 +1,24 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {Backdrop} from '../components/Backdrop';
-import {MoneyCounter, MoneyRain, Countdown} from '../components/Props';
+import {Countdown, MoneyCounter, MoneyRain} from '../components/Props';
 import {Kicker, PopWord, Stage, glow} from '../components/Text';
 import {ANTON} from '../components/fonts';
 import {COLORS} from '../constants';
-import {pop, float} from '../lib/anim';
+import {float, pop} from '../lib/anim';
 import {wordFrame} from '../timeline';
 import type {PlanFn} from './types';
 
-// HOOK : « GTA 6 sort dans deux jours… et il va créer des millionnaires. »
+// « GTA 6 sort dans deux jours. Et crois-moi, il va créer des millionnaires ! »
 export const plan1: PlanFn = (t) => {
-	const B = wordFrame(t, 'deux', 0.3);
-	const C = wordFrame(t, 'et', 0.55);
-	const D = wordFrame(t, 'millionnaires', 0.85);
-	const counterLen = D - C;
+	const B = wordFrame(t, 'dans', 0.25);
+	const deux = wordFrame(t, 'deux', 0.28);
+	const C = wordFrame(t, 'crois-moi', 0.5);
+	const D = wordFrame(t, 'il', 0.62);
+	const E = wordFrame(t, 'millionnaires', 0.82);
 	return {
-		impacts: [B, D],
-		chachings: [C + Math.round(counterLen * 0.55), D],
+		impacts: [0, deux, C, E],
+		chachings: [D + Math.round((E - D) * 0.5), E],
 		shots: [
 			{
 				at: 0,
@@ -26,7 +27,7 @@ export const plan1: PlanFn = (t) => {
 						<Backdrop sun grid palms />
 						<Stage>
 							<ChromaTitle text="GTA 6" frame={f} />
-							<Kicker text="19 NOVEMBRE 2026" frame={f} at={5} size={80} />
+							<Kicker text="SORTIE LE 19 NOVEMBRE" frame={f} at={6} size={74} color={COLORS.white} />
 						</Stage>
 					</AbsoluteFill>
 				),
@@ -36,23 +37,32 @@ export const plan1: PlanFn = (t) => {
 				render: (f) => (
 					<AbsoluteFill>
 						<Backdrop grid tint={COLORS.cyan} />
-						<Stage gap={10}>
-							<Kicker text="SORTIE DANS" frame={f} size={80} color={COLORS.white} />
+						<Stage gap={0}>
 							<Countdown frame={f} />
-							<PopWord text="J-2" frame={f} at={3} size={300} color={COLORS.pink} />
+							<PopWord text="J-2" frame={f} at={deux - B} size={360} color={COLORS.pink} />
 						</Stage>
 					</AbsoluteFill>
 				),
 			},
 			{
 				at: C,
-				render: (f, len) => (
+				render: (f) => (
 					<AbsoluteFill>
 						<Backdrop grid tint={COLORS.violet} />
+						<Stage>
+							<PopWord text="CROIS-MOI" frame={f} size={200} color={COLORS.white} tilt={-6} />
+						</Stage>
+					</AbsoluteFill>
+				),
+			},
+			{
+				at: D,
+				render: (f, len) => (
+					<AbsoluteFill>
+						<Backdrop grid tint={COLORS.cyan} />
 						<Stage gap={20}>
-							<Kicker text="IL VA CRÉER DES…" frame={f} size={84} color={COLORS.white} />
-							<div style={{transform: `scale(${0.6 + 0.4 * pop(f, 0)})`}}>
-								<MoneyCounter frame={f} to={999999} start={0} end={len + 4} size={160} />
+							<div style={{transform: `scale(${0.6 + 0.5 * pop(f, 0)})`}}>
+								<MoneyCounter frame={f} to={999999} start={0} end={len + 2} size={170} />
 							</div>
 							<DollarRow frame={f} />
 						</Stage>
@@ -60,13 +70,13 @@ export const plan1: PlanFn = (t) => {
 				),
 			},
 			{
-				at: D,
+				at: E,
 				render: (f) => (
 					<AbsoluteFill>
 						<Backdrop sun grid palms tint={COLORS.pink} />
-						<MoneyRain frame={f} seed="s1" />
-						<Stage gap={30}>
-							<MoneyCounter frame={f} from={999999} to={1000000} start={0} end={4} size={110} />
+						<MoneyRain frame={f} seed="s1" count={22} />
+						<Stage gap={20}>
+							<MoneyCounter frame={f} from={999999} to={1000000} start={0} end={3} size={120} />
 							<PopWord text="MILLIONNAIRES" frame={f} size={150} color={COLORS.pink} />
 						</Stage>
 					</AbsoluteFill>
@@ -78,10 +88,10 @@ export const plan1: PlanFn = (t) => {
 
 const ChromaTitle: React.FC<{text: string; frame: number}> = ({text, frame}) => {
 	const p = pop(frame, 0);
-	const split = 14 * (1 - p) + 4 + Math.abs(float(frame, 3, 0.9));
-	const base: React.CSSProperties = {fontFamily: ANTON, fontSize: 380, lineHeight: 1, position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap'};
+	const split = 18 * (1 - p) + 5 + Math.abs(float(frame, 4, 0.9));
+	const base: React.CSSProperties = {fontFamily: ANTON, fontSize: 400, lineHeight: 1, position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap'};
 	return (
-		<div style={{position: 'relative', width: 760, height: 400, display: 'flex', justifyContent: 'center', transform: `scale(${0.4 + 0.6 * p})`}}>
+		<div style={{position: 'relative', display: 'flex', justifyContent: 'center', transform: `scale(${0.3 + 0.7 * p}) rotate(${(1 - p) * -12}deg)`}}>
 			<div style={{position: 'relative'}}>
 				<div style={{...base, position: 'relative', visibility: 'hidden'}}>{text}</div>
 				<div style={{...base, color: COLORS.cyan, transform: `translateX(${-split}px)`, mixBlendMode: 'screen', opacity: 0.9}}>{text}</div>
@@ -95,9 +105,9 @@ const ChromaTitle: React.FC<{text: string; frame: number}> = ({text, frame}) => 
 const DollarRow: React.FC<{frame: number}> = ({frame}) => (
 	<div style={{display: 'flex', gap: 30}}>
 		{[0, 1, 2, 3, 4].map((i) => {
-			const p = pop(frame, 4 + i * 4);
+			const p = pop(frame, 2 + i * 3);
 			return (
-				<div key={i} style={{fontFamily: ANTON, fontSize: 110, color: i % 2 ? COLORS.cyan : COLORS.pink, textShadow: glow(i % 2 ? COLORS.cyan : COLORS.pink, 0.6), transform: `translateY(${(1 - p) * 120 + float(frame, 10, 0.25, i)}px) scale(${p})`}}>
+				<div key={i} style={{fontFamily: ANTON, fontSize: 120, color: i % 2 ? COLORS.cyan : COLORS.pink, textShadow: glow(i % 2 ? COLORS.cyan : COLORS.pink, 0.6), transform: `translateY(${(1 - p) * 140 + float(frame, 14, 0.35, i)}px) scale(${p})`}}>
 					$
 				</div>
 			);

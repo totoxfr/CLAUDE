@@ -1,6 +1,6 @@
 # GTA 6 va créer des millionnaires — motion design vertical
 
-Remotion (React + TypeScript), 1080×1920, 30 fps, ~45 s.
+Remotion (React + TypeScript), 1080×1920, 30 fps, ~36 s : la durée est pilotée par la voix, sans temps mort.
 
 ## Démarrage
 
@@ -18,9 +18,9 @@ npm run render              # -> out/gta6-millionnaires.mp4 (H.264, CRF 18)
 
 ### Voix
 
-Ordre de choix automatique : **ElevenLabs** si `ELEVENLABS_API_KEY` est défini, sinon **Chatterbox** s'il est installé, sinon Edge. `TTS_PROVIDER=chatterbox|edge|elevenlabs|silent` force un fournisseur.
+Ordre de choix automatique : **ElevenLabs** si `ELEVENLABS_API_KEY` est défini, sinon **Edge** (par défaut). `TTS_PROVIDER=chatterbox|edge|elevenlabs|silent` force un fournisseur.
 
-#### Chatterbox (par défaut, gratuit, local)
+#### Chatterbox (option, `TTS_PROVIDER=chatterbox`)
 
 [resemble-ai/chatterbox](https://github.com/resemble-ai/chatterbox), modèle multilingue, en français, sur CPU (pas besoin de GPU).
 
@@ -38,7 +38,9 @@ npm run tts        # ~10-15 min sur 4 cœurs CPU
 - **Contrôle qualité** : chaque prise est retranscrite par Whisper. Si elle s'éloigne du texte (hallucination, mot avalé, durée anormale), elle est régénérée, avec au maximum `maxTries` prises par scène, et la meilleure est gardée. Les timestamps mot à mot viennent de cette transcription.
 - **Une seule scène** : `npm run tts -- --only s3`. Pour obtenir une prise différente, change `CHATTERBOX.seed`.
 
-#### Edge TTS (secours)
+#### Edge TTS (par défaut)
+
+Tout le script est lu en **une seule prise continue** : l'intonation reste fluide, sans redémarrage robotique à chaque phrase. Les pauses sont ensuite compressées (`GAP` dans `scripts/tts.ts`), puis la prise est découpée en une piste par scène. Un traitement « présence » est appliqué : EQ, compression et normalisation à -15 LUFS.
 
 Voix Microsoft Edge (`EDGE_VOICE`), via `pip install edge-tts`. ⚠ Ce n'est pas une API officielle : pour un usage commercial, préfère Azure Speech ou ElevenLabs.
 
