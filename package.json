@@ -1,0 +1,28 @@
+{
+  "name": "gta6-millionnaires",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sfx": "bash scripts/make-sfx.sh",
+    "tts": "node scripts/tts.ts",
+    "assets": "node scripts/scan-assets.ts",
+    "prestudio": "node scripts/scan-assets.ts",
+    "studio": "remotion studio src/index.ts",
+    "prerender": "node scripts/scan-assets.ts",
+    "render": "remotion render src/index.ts Main out/gta6-millionnaires.mp4 --codec=h264 --crf=18",
+    "stills": "node scripts/stills.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.544",
+    "@remotion/fonts": "^4.0.544",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "^4.0.544"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,9 @@
+{
+	"music": false,
+	"sfx": {
+		"whoosh": true,
+		"impact": true,
+		"chaching": true,
+		"glitch": true
+	}
+}
