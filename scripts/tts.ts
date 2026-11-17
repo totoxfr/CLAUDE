@@ -6,7 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
-import {EDGE_VOICE, SCENES, VOICE} from '../src/constants.ts';
+import {CHATTERBOX, EDGE_VOICE, PRONUNCIATION, SCENES, VOICE} from '../src/constants.ts';
 
 type Word = {text: string; start: number; end: number};
 type SceneVoice = {id: string; file: string; duration: number; words: Word[]};
@@ -220,16 +220,46 @@ const synthEdge = (i: number) => {
 	return {file, words};
 };
 
+// --- Chatterbox (local, open source) ----------------------------------------
+const venvPy = path.join(root, '.venv-tts', 'bin', 'python');
+const hasChatterbox = fs.existsSync(venvPy);
+const synthChatterbox = (ids: string[]) => {
+	const custom = path.join(root, 'tts', 'ref', 'custom.wav');
+	const ref = fs.existsSync(custom) ? custom : path.join(root, 'tts', 'ref', 'default.wav');
+	console.log(`Référence de voix : ${path.relative(root, ref)}`);
+	const job = {
+		outDir: voiceDir,
+		ref,
+		settings: CHATTERBOX,
+		pronunciation: PRONUNCIATION,
+		scenes: SCENES.filter((s) => ids.includes(s.id)).map((s) => ({id: s.id, tts: s.tts})),
+	};
+	const out = execFileSync(venvPy, [path.join(root, 'scripts', 'chatterbox_tts.py')], {
+		input: JSON.stringify(job),
+		stdio: ['pipe', 'pipe', 'inherit'],
+		maxBuffer: 64 * 1024 * 1024,
+	}).toString();
+	const res = JSON.parse(out) as {scenes: {id: string; file: string; words: Word[]; score: number}[]};
+	return new Map(res.scenes.map((s) => [s.id, s]));
+};
+
 // --- Main -------------------------------------------------------------------
 const prev: Manifest | null = fs.existsSync(manifestPath)
 	? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 	: null;
 
-const provider = (process.env.TTS_PROVIDER?.trim() || (apiKey ? 'elevenlabs' : 'edge')) as 'elevenlabs' | 'edge' | 'silent';
+const provider = (process.env.TTS_PROVIDER?.trim() || (apiKey ? 'elevenlabs' : hasChatterbox ? 'chatterbox' : 'edge')) as
+	| 'elevenlabs'
+	| 'chatterbox'
+	| 'edge'
+	| 'silent';
 const placeholder = provider === 'silent';
 if (placeholder) console.warn('⚠ TTS_PROVIDER=silent : pistes MUETTES provisoires avec timing estimé.');
 console.log(`Fournisseur voix : ${provider}${provider === 'edge' ? ` (${EDGE_VOICE.voice}, ${EDGE_VOICE.rate})` : ''}`);
-const voiceId = provider === 'elevenlabs' ? await pickVoice() : provider === 'edge' ? EDGE_VOICE.voice : null;
+const voiceId =
+	provider === 'elevenlabs' ? await pickVoice() : provider === 'edge' ? EDGE_VOICE.voice : provider === 'chatterbox' ? 'chatterbox-multilingual' : null;
+const todo = SCENES.filter((s) => !(only && only !== s.id && prev?.provider === provider && prev.scenes.some((x) => x.id === s.id))).map((s) => s.id);
+const cb = provider === 'chatterbox' ? synthChatterbox(todo) : null;
 
 const scenes: SceneVoice[] = [];
 for (let i = 0; i < SCENES.length; i++) {
@@ -246,6 +276,11 @@ for (let i = 0; i < SCENES.length; i++) {
 		file = path.join(voiceDir, `${s.id}.mp3`);
 		silentMp3(file, est.duration);
 		words = est.words;
+	} else if (cb) {
+		const r = cb.get(s.id)!;
+		file = r.file;
+		words = r.words;
+		if (r.score < CHATTERBOX.minScore) console.warn(`⚠ ${s.id} : fidélité ${r.score} < ${CHATTERBOX.minScore}, à réécouter (npm run tts -- --only ${s.id})`);
 	} else if (provider === 'edge') {
 		({file, words} = synthEdge(i));
 	} else {

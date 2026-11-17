@@ -18,11 +18,29 @@ npm run render              # -> out/gta6-millionnaires.mp4 (H.264, CRF 18)
 
 ### Voix
 
-- **Par défaut (gratuit)** : voix neuronale Microsoft Edge `fr-FR-RemyMultilingualNeural` à +8 %, via [edge-tts](https://github.com/rany2/edge-tts). Aucune clé, timestamps mot à mot inclus. Les `<break>` du script deviennent de vrais silences et la voix est normalisée à -16 LUFS. Pour changer de voix ou de débit, modifie `EDGE_VOICE` dans `src/constants.ts` (alternative : `fr-FR-HenriNeural`).
-- **ElevenLabs** : si `ELEVENLABS_API_KEY` est présent dans `.env`, il est utilisé automatiquement.
-- `TTS_PROVIDER=edge|elevenlabs|silent` force un fournisseur (`silent` = pistes muettes avec timing estimé).
+Ordre de choix automatique : **ElevenLabs** si `ELEVENLABS_API_KEY` est défini, sinon **Chatterbox** s'il est installé, sinon Edge. `TTS_PROVIDER=chatterbox|edge|elevenlabs|silent` force un fournisseur.
 
-⚠ edge-tts passe par le service de lecture à voix haute de Microsoft Edge, qui n'est pas une API officielle. Pour un usage commercial ou monétisé, vérifie les conditions de Microsoft, ou passe à Azure Speech (mêmes voix, offre gratuite de 500 000 caractères par mois) ou à ElevenLabs.
+#### Chatterbox (par défaut, gratuit, local)
+
+[resemble-ai/chatterbox](https://github.com/resemble-ai/chatterbox), modèle multilingue, en français, sur CPU (pas besoin de GPU).
+
+```bash
+pip install uv
+uv venv --python 3.11 .venv-tts
+VIRTUAL_ENV=.venv-tts uv pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+VIRTUAL_ENV=.venv-tts uv pip install chatterbox-tts==0.1.7 faster-whisper "setuptools<81"
+npm run tts        # ~10-15 min sur 4 cœurs CPU
+```
+
+- **Timbre** : Chatterbox clone une voix de référence de 10 à 20 s. Par défaut c'est `tts/ref/default.wav` (voix masculine synthétique). Dépose `tts/ref/custom.wav` (ta propre voix, ou une voix dont tu as les droits) pour l'utiliser à la place.
+- **Dynamisme** : `CHATTERBOX.exaggeration` dans `src/constants.ts` (0.5 = neutre, 0.7 = dynamique, 0.9 = très expressif).
+- **Prononciation** : `PRONUNCIATION` dans `src/constants.ts` (ex. `GTA` → `G. T. A.`). Ça ne touche que la voix, les sous-titres gardent le vrai texte.
+- **Contrôle qualité** : chaque prise est retranscrite par Whisper. Si elle s'éloigne du texte (hallucination, mot avalé, durée anormale), elle est régénérée, avec au maximum `maxTries` prises par scène, et la meilleure est gardée. Les timestamps mot à mot viennent de cette transcription.
+- **Une seule scène** : `npm run tts -- --only s3`. Pour obtenir une prise différente, change `CHATTERBOX.seed`.
+
+#### Edge TTS (secours)
+
+Voix Microsoft Edge (`EDGE_VOICE`), via `pip install edge-tts`. ⚠ Ce n'est pas une API officielle : pour un usage commercial, préfère Azure Speech ou ElevenLabs.
 
 ## La voix pilote le montage
 

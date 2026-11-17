@@ -133,6 +133,29 @@ export const EDGE_VOICE = {
 	pitch: '+0Hz',
 } as const;
 
+// Chatterbox Multilingual (Resemble AI, open source, local) : fournisseur par défaut
+// s'il est installé (voir README). Référence de voix : tts/ref/custom.wav si présent,
+// sinon tts/ref/default.wav (voix masculine synthétique).
+export const CHATTERBOX = {
+	exaggeration: 0.7, // expressivité (0.5 = neutre, 0.7-0.9 = très dynamique)
+	cfgWeight: 0.4, // plus bas = débit plus libre
+	temperature: 0.8,
+	maxTries: 3, // prises max par scène (la meilleure est gardée)
+	minScore: 0.8, // fidélité minimale transcription/texte pour accepter une prise
+	seed: 7,
+	whisperModel: 'small',
+} as const;
+
+// Prononciation (voix uniquement — les sous-titres gardent le vrai texte).
+// Clé = mot du script tel quel (ponctuation comprise).
+export const PRONUNCIATION: Record<string, string> = {
+	GTA: 'G. T. A.', // lettres détachées, sinon « gétéa » se fond dans la phrase
+	'6': 'six,', // la virgule force « sisse » (sinon « si sort »)
+	'5,': 'cinq,',
+	'RP.': 'erre pé.',
+	'Take-Two.': 'Tèk Tou.',
+};
+
 export const VOICE = {
 	modelId: 'eleven_multilingual_v2',
 	outputFormat: 'mp3_44100_128',
