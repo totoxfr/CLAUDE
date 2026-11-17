@@ -124,7 +124,15 @@ export const SCENES: SceneDef[] = [
 	},
 ];
 
-// ---- Voix (ElevenLabs) ----------------------------------------------------
+// ---- Voix ------------------------------------------------------------------
+// Fournisseur : ElevenLabs si ELEVENLABS_API_KEY est défini, sinon voix neuronale
+// Microsoft Edge gratuite (edge-tts). Forçable via TTS_PROVIDER=elevenlabs|edge|silent.
+export const EDGE_VOICE = {
+	voice: 'fr-FR-RemyMultilingualNeural', // alternative : 'fr-FR-HenriNeural'
+	rate: '+8%',
+	pitch: '+0Hz',
+} as const;
+
 export const VOICE = {
 	modelId: 'eleven_multilingual_v2',
 	outputFormat: 'mp3_44100_128',

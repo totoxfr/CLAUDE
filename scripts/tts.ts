@@ -6,11 +6,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
-import {SCENES, VOICE} from '../src/constants.ts';
+import {EDGE_VOICE, SCENES, VOICE} from '../src/constants.ts';
 
 type Word = {text: string; start: number; end: number};
 type SceneVoice = {id: string; file: string; duration: number; words: Word[]};
-type Manifest = {placeholder: boolean; voiceId: string | null; scenes: SceneVoice[]};
+type Manifest = {placeholder: boolean; provider: string; voiceId: string | null; scenes: SceneVoice[]};
 
 const root = path.resolve(import.meta.dirname, '..');
 const voiceDir = path.join(root, 'public', 'voice');
@@ -157,22 +157,85 @@ const synth = async (voiceId: string, i: number) => {
 	};
 };
 
+// --- Edge TTS (gratuit) -----------------------------------------------------
+const tmpDir = path.join(root, 'out', 'tts-tmp');
+const cleanTok = (x: string) => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+
+// Les WordBoundary n'ont pas la ponctuation : on la récupère depuis le texte source.
+const reattachPunctuation = (words: Word[], source: string): Word[] => {
+	const tokens = source.split(/\s+/).filter(Boolean);
+	let k = 0;
+	return words.map((w) => {
+		const target = cleanTok(w.text);
+		for (let j = k; j < tokens.length; j++) {
+			if (cleanTok(tokens[j]).startsWith(target) && target) {
+				k = j + 1;
+				let text = tokens[j];
+				while (tokens[k] && /^[\p{P}]+$/u.test(tokens[k])) text += tokens[k++]; // « : » « ? » isolés
+				return {...w, text};
+			}
+		}
+		return w;
+	});
+};
+
+const synthEdge = (i: number) => {
+	const scene = SCENES[i];
+	fs.mkdirSync(tmpDir, {recursive: true});
+	// découpe sur les <break time="Xs" /> -> segments + silences
+	const parts = scene.tts.split(/<break\s+time="([\d.]+)s"\s*\/>/);
+	const inputs: string[] = [];
+	const words: Word[] = [];
+	let t = 0;
+	parts.forEach((part, k) => {
+		if (k % 2 === 1) {
+			const secs = Number(part);
+			inputs.push('-f', 'lavfi', '-t', String(secs), '-i', 'anullsrc=r=24000:cl=mono');
+			t += secs;
+			return;
+		}
+		const text = part.trim();
+		if (!text) return;
+		const seg = path.join(tmpDir, `${scene.id}-${k}.mp3`);
+		const out = execFileSync('python3', [
+			path.join(root, 'scripts', 'edge_tts_seg.py'), EDGE_VOICE.voice, EDGE_VOICE.rate, EDGE_VOICE.pitch, seg, text,
+		]).toString();
+		const segWords = reattachPunctuation(JSON.parse(out) as Word[], text);
+		// Edge ajoute du silence en tête/queue : on coupe au plus près de la parole
+		// pour que les <break> donnent la vraie durée de pause.
+		const dur = probeDuration(seg);
+		const from = Math.max(0, (segWords[0]?.start ?? 0) - 0.04);
+		const to = Math.min(dur, (segWords[segWords.length - 1]?.end ?? dur) + 0.28);
+		const trimmed = seg.replace(/\.mp3$/, '-trim.wav');
+		execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', seg, '-ss', String(from), '-to', String(to), '-af', 'afade=t=out:st=' + Math.max(0, to - from - 0.05) + ':d=0.05', trimmed]);
+		segWords.forEach((w) => words.push({text: w.text, start: +(w.start - from + t).toFixed(3), end: +(w.end - from + t).toFixed(3)}));
+		inputs.push('-i', trimmed);
+		t += probeDuration(trimmed);
+	});
+	const n = inputs.filter((x) => x === '-i').length;
+	const file = path.join(voiceDir, `${scene.id}.mp3`);
+	const chain = Array.from({length: n}, (_, j) => `[${j}:a]aresample=44100,aformat=channel_layouts=mono[a${j}];`).join('') +
+		Array.from({length: n}, (_, j) => `[a${j}]`).join('') + `concat=n=${n}:v=0:a=1,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=44100[out]`;
+	execFileSync('ffmpeg', ['-y', '-loglevel', 'error', ...inputs, '-filter_complex', chain, '-map', '[out]', '-c:a', 'libmp3lame', '-b:a', '128k', file]);
+	return {file, words};
+};
+
 // --- Main -------------------------------------------------------------------
 const prev: Manifest | null = fs.existsSync(manifestPath)
 	? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 	: null;
 
-const placeholder = !apiKey;
-if (placeholder) {
-	console.warn('⚠ ELEVENLABS_API_KEY absent : pistes MUETTES provisoires avec timing estimé.');
-}
-const voiceId = placeholder ? null : await pickVoice();
+const provider = (process.env.TTS_PROVIDER?.trim() || (apiKey ? 'elevenlabs' : 'edge')) as 'elevenlabs' | 'edge' | 'silent';
+const placeholder = provider === 'silent';
+if (placeholder) console.warn('⚠ TTS_PROVIDER=silent : pistes MUETTES provisoires avec timing estimé.');
+console.log(`Fournisseur voix : ${provider}${provider === 'edge' ? ` (${EDGE_VOICE.voice}, ${EDGE_VOICE.rate})` : ''}`);
+const voiceId = provider === 'elevenlabs' ? await pickVoice() : provider === 'edge' ? EDGE_VOICE.voice : null;
 
 const scenes: SceneVoice[] = [];
 for (let i = 0; i < SCENES.length; i++) {
 	const s = SCENES[i];
 	const old = prev?.scenes.find((x) => x.id === s.id);
-	if (only && only !== s.id && old && prev?.placeholder === placeholder) {
+	if (only && only !== s.id && old && prev?.provider === provider) {
 		scenes.push(old);
 		continue;
 	}
@@ -183,6 +246,8 @@ for (let i = 0; i < SCENES.length; i++) {
 		file = path.join(voiceDir, `${s.id}.mp3`);
 		silentMp3(file, est.duration);
 		words = est.words;
+	} else if (provider === 'edge') {
+		({file, words} = synthEdge(i));
 	} else {
 		({file, words} = await synth(voiceId!, i));
 	}
@@ -191,7 +256,8 @@ for (let i = 0; i < SCENES.length; i++) {
 	console.log(`${s.id}  ${duration.toFixed(2)} s  ${words.map((w) => w.text).join(' ')}`);
 }
 
-const manifest: Manifest = {placeholder, voiceId, scenes};
+const manifest: Manifest = {placeholder, provider, voiceId, scenes};
+fs.rmSync(tmpDir, {recursive: true, force: true});
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, '\t') + '\n');
 const total = scenes.reduce((a, s) => a + s.duration, 0);
 console.log(`Voix totale : ${total.toFixed(2)} s -> ${path.relative(root, manifestPath)}`);

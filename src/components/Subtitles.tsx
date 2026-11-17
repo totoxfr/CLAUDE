@@ -11,22 +11,34 @@ const clean = (s: string) => s.replace(/[.,:;…«»"]/g, '').replace(/\s*\?/, '
 
 export const groupWords = (words: FWord[]): Group[] => {
 	const gap = SUBS.breakGapSeconds * VIDEO.fps;
-	const groups: Group[] = [];
+	// 1) découpe en phrases (ponctuation ou silence)
+	const phrases: FWord[][] = [];
 	let cur: FWord[] = [];
-	const push = () => {
-		if (cur.length) groups.push({words: cur, start: cur[0].start, end: cur[cur.length - 1].end});
-		cur = [];
-	};
 	words.forEach((w, i) => {
 		const prev = words[i - 1];
-		if (cur.length && (cur.length >= SUBS.maxWords || (prev && w.start - prev.end > gap))) push();
+		if (cur.length && prev && w.start - prev.end > gap) {
+			phrases.push(cur);
+			cur = [];
+		}
 		cur.push(w);
-		const next = words[i + 1];
-		// coupe toujours en fin de phrase ; sur « : » / « … » seulement si le groupe a assez de mots
-		if (/[.?!]$/.test(w.text)) push();
-		else if (/[:…]$/.test(w.text) && (cur.length >= SUBS.minWords || !next || next.start - w.end > gap)) push();
+		if (/[.?!…:]$/.test(w.text)) {
+			phrases.push(cur);
+			cur = [];
+		}
 	});
-	push();
+	if (cur.length) phrases.push(cur);
+	// 2) chaque phrase -> blocs équilibrés de 2 à 4 mots (5 mots = 3 + 2, jamais de mot orphelin)
+	const groups: Group[] = [];
+	for (const ph of phrases) {
+		const k = Math.ceil(ph.length / SUBS.maxWords);
+		let idx = 0;
+		for (let c = 0; c < k; c++) {
+			const size = Math.ceil((ph.length - idx) / (k - c));
+			const ws = ph.slice(idx, idx + size);
+			idx += size;
+			groups.push({words: ws, start: ws[0].start, end: ws[ws.length - 1].end});
+		}
+	}
 	// étend chaque groupe jusqu'au suivant (pas de trou visuel quand le débit est continu)
 	return groups.map((g, i) => {
 		const next = groups[i + 1];

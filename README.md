@@ -6,7 +6,7 @@ Remotion (React + TypeScript), 1080×1920, 30 fps, ~45 s.
 
 ```bash
 npm install
-cp .env.example .env        # puis renseigne ELEVENLABS_API_KEY (et éventuellement ELEVENLABS_VOICE_ID)
+pip install edge-tts        # voix gratuite (aucune clé nécessaire)
 npm run tts                 # génère public/voice/s1..s7.mp3 + src/voice-manifest.json (timestamps mot à mot)
 npm run sfx                 # SFX de secours synthétisés (n'écrase pas les tiens)
 npm run studio              # preview
@@ -16,7 +16,13 @@ npm run render              # -> out/gta6-millionnaires.mp4 (H.264, CRF 18)
 
 `npm run tts -- --only s3` régénère une seule scène.
 
-Sans clé, `npm run tts` crée des pistes **muettes** avec un timing estimé, pour pouvoir monter et prévisualiser.
+### Voix
+
+- **Par défaut (gratuit)** : voix neuronale Microsoft Edge `fr-FR-RemyMultilingualNeural` à +8 %, via [edge-tts](https://github.com/rany2/edge-tts). Aucune clé, timestamps mot à mot inclus. Les `<break>` du script deviennent de vrais silences et la voix est normalisée à -16 LUFS. Pour changer de voix ou de débit, modifie `EDGE_VOICE` dans `src/constants.ts` (alternative : `fr-FR-HenriNeural`).
+- **ElevenLabs** : si `ELEVENLABS_API_KEY` est présent dans `.env`, il est utilisé automatiquement.
+- `TTS_PROVIDER=edge|elevenlabs|silent` force un fournisseur (`silent` = pistes muettes avec timing estimé).
+
+⚠ edge-tts passe par le service de lecture à voix haute de Microsoft Edge, qui n'est pas une API officielle. Pour un usage commercial ou monétisé, vérifie les conditions de Microsoft, ou passe à Azure Speech (mêmes voix, offre gratuite de 500 000 caractères par mois) ou à ElevenLabs.
 
 ## La voix pilote le montage
 
