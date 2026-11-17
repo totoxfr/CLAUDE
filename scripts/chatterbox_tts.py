@@ -104,7 +104,14 @@ def plan_scene(tts: str, pron: dict):
             segments.append(("pause", val))
             continue
         words_out = []
+        toks = []
         for tok in val.split():
+            # ponctuation isolée (« : », « ? » à la française) -> collée au mot précédent
+            if re.fullmatch(r"[^\w]+", tok) and toks:
+                toks[-1] += tok
+            else:
+                toks.append(tok)
+        for tok in toks:
             di = len(display)
             display.append(tok)
             say = pron.get(tok, tok).replace("…", ",")
@@ -116,16 +123,41 @@ def plan_scene(tts: str, pron: dict):
     return segments, display, spoken_tokens, spoken_owner
 
 
+def transcribe(asr, path):
+    segs, _ = asr.transcribe(path, language="fr", word_timestamps=True, beam_size=5, vad_filter=False)
+    return [{"word": w.word, "start": w.start, "end": w.end} for s in segs for w in (s.words or [])]
+
+
+def to_display(display, owner, sp_words):
+    words = []
+    for di, tok in enumerate(display):
+        idx = [k for k, o in enumerate(owner) if o == di]
+        words.append({"text": tok, "start": sp_words[idx[0]]["start"], "end": sp_words[idx[-1]]["end"]})
+    return words
+
+
 def main():
     job = json.load(sys.stdin)
     st = job["settings"]
     pron = job.get("pronunciation", {})
-    log("Chargement Chatterbox Multilingual (CPU)…")
-    model = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
+    align_only = job.get("alignOnly", False)
     log("Chargement faster-whisper…")
     asr = WhisperModel(st.get("whisperModel", "small"), device="cpu", compute_type="int8")
-    sr = model.sr
     results = []
+    if align_only:
+        # Pistes déjà présentes (générées, ou enregistrées à la main) : timestamps seulement.
+        for scene in job["scenes"]:
+            _, display, spoken_tokens, owner = plan_scene(scene["tts"], pron)
+            out = os.path.join(job["outDir"], f"{scene['id']}.mp3")
+            dur = librosa.get_duration(path=out)
+            ww = transcribe(asr, out)
+            sp_words, score = align(spoken_tokens, ww, dur)
+            log(f"{scene['id']} alignement : score {score:.2f} | entendu : {' '.join(w['word'].strip() for w in ww)}")
+            results.append({"id": scene["id"], "file": out, "words": to_display(display, owner, sp_words), "score": round(score, 3)})
+        return results
+    log("Chargement Chatterbox Multilingual (CPU)…")
+    model = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
+    sr = model.sr
     tmp = tempfile.mkdtemp()
     for scene in job["scenes"]:
         segments, display, spoken_tokens, owner = plan_scene(scene["tts"], pron)
@@ -153,8 +185,7 @@ def main():
             dur = len(audio) / sr
             raw = os.path.join(tmp, f"{scene['id']}-{attempt}.wav")
             sf.write(raw, audio, sr)
-            segs, _ = asr.transcribe(raw, language="fr", word_timestamps=True, beam_size=5, vad_filter=False)
-            ww = [{"word": w.word, "start": w.start, "end": w.end} for s in segs for w in (s.words or [])]
+            ww = transcribe(asr, raw)
             sp_words, score = align(spoken_tokens, ww, dur)
             # fidélité aussi mesurée sur le texte d'affichage (« RP » entendu = « erre pé » dit)
             heard_n = [norm(w["word"]) for w in ww]
@@ -171,10 +202,7 @@ def main():
                 break
         raw, score, sp_words = best
         # regroupe les mots parlés sur les mots d'affichage
-        words = []
-        for di, tok in enumerate(display):
-            idx = [k for k, o in enumerate(owner) if o == di]
-            words.append({"text": tok, "start": sp_words[idx[0]]["start"], "end": sp_words[idx[-1]]["end"]})
+        words = to_display(display, owner, sp_words)
         out = os.path.join(job["outDir"], f"{scene['id']}.mp3")
         subprocess.run(
             ["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,aresample=44100",
@@ -182,8 +210,12 @@ def main():
             check=True,
         )
         results.append({"id": scene["id"], "file": out, "words": words, "score": round(score, 3)})
-    print(json.dumps({"scenes": results}, ensure_ascii=False))
+    return results
 
 
 if __name__ == "__main__":
-    main()
+    # stdout est réservé au JSON final : tout ce que les librairies impriment part sur stderr.
+    real_stdout = sys.stdout
+    sys.stdout = sys.stderr
+    res = main()
+    real_stdout.write(json.dumps({"scenes": res}, ensure_ascii=False) + "\n")

@@ -232,6 +232,7 @@ const synthChatterbox = (ids: string[]) => {
 		ref,
 		settings: CHATTERBOX,
 		pronunciation: PRONUNCIATION,
+		alignOnly: process.argv.includes('--align-only'),
 		scenes: SCENES.filter((s) => ids.includes(s.id)).map((s) => ({id: s.id, tts: s.tts})),
 	};
 	const out = execFileSync(venvPy, [path.join(root, 'scripts', 'chatterbox_tts.py')], {
@@ -239,7 +240,7 @@ const synthChatterbox = (ids: string[]) => {
 		stdio: ['pipe', 'pipe', 'inherit'],
 		maxBuffer: 64 * 1024 * 1024,
 	}).toString();
-	const res = JSON.parse(out) as {scenes: {id: string; file: string; words: Word[]; score: number}[]};
+	const res = JSON.parse(out.trim().split('\n').pop()!) as {scenes: {id: string; file: string; words: Word[]; score: number}[]};
 	return new Map(res.scenes.map((s) => [s.id, s]));
 };
 
