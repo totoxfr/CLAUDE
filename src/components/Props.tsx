@@ -180,8 +180,8 @@ export const Stamp: React.FC<{text: string; frame: number; at?: number; color?: 
 };
 
 // ---------------------------------------------------------------- Compte à rebours
-export const Countdown: React.FC<{frame: number}> = ({frame}) => {
-	const secs = 48 * 3600 - frame * 37; // défile vite
+export const Countdown: React.FC<{frame: number; fromHours?: number}> = ({frame, fromHours = 48}) => {
+	const secs = Math.max(0, fromHours * 3600 - frame * 37); // défile vite
 	const h = Math.floor(secs / 3600);
 	const m = Math.floor((secs % 3600) / 60);
 	const s = secs % 60;

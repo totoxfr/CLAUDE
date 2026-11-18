@@ -63,7 +63,7 @@ export const SCENES: SceneDef[] = [
 	{
 		id: 's1',
 		label: 'Hook',
-		tts: 'GTA 6 sort dans deux jours. Et crois-moi, il va créer des millionnaires !',
+		tts: 'GTA 6 sort cette nuit. Et crois-moi, il va créer des millionnaires !',
 		leadIn: 0,
 		tail: 0,
 		tailWeight: 1,

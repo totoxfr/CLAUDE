@@ -9,15 +9,15 @@ import {float, pop} from '../lib/anim';
 import {wordFrame} from '../timeline';
 import type {PlanFn} from './types';
 
-// « GTA 6 sort dans deux jours. Et crois-moi, il va créer des millionnaires ! »
+// « GTA 6 sort cette nuit. Et crois-moi, il va créer des millionnaires ! »
 export const plan1: PlanFn = (t) => {
-	const B = wordFrame(t, 'dans', 0.25);
-	const deux = wordFrame(t, 'deux', 0.28);
+	const B = wordFrame(t, 'cette', 0.25);
+	const nuit = wordFrame(t, 'nuit', 0.3);
 	const C = wordFrame(t, 'crois-moi', 0.5);
 	const D = wordFrame(t, 'il', 0.62);
 	const E = wordFrame(t, 'millionnaires', 0.82);
 	return {
-		impacts: [0, deux, C, E],
+		impacts: [0, nuit, C, E],
 		chachings: [D + Math.round((E - D) * 0.5), E],
 		shots: [
 			{
@@ -38,8 +38,8 @@ export const plan1: PlanFn = (t) => {
 					<AbsoluteFill>
 						<Backdrop grid tint={COLORS.cyan} />
 						<Stage gap={0}>
-							<Countdown frame={f} />
-							<PopWord text="J-2" frame={f} at={deux - B} size={360} color={COLORS.pink} />
+							<Countdown frame={f} fromHours={3} />
+							<PopWord text="CETTE NUIT" frame={f} at={nuit - B} size={190} color={COLORS.pink} />
 						</Stage>
 					</AbsoluteFill>
 				),
